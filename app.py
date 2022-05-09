@@ -1,5 +1,5 @@
-from flask import Flask, request, render_template, redirect, session, choice, flash
-from surveys import Question, Survey, survey
+from flask import Flask, request, render_template, redirect, session, flash
+from surveys import satisfaction_survey as survey
 from flask_debugtoolbar import DebugToolbarExtension
 
 RESPONSES_KEY = "responses"
