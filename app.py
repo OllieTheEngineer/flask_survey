@@ -19,7 +19,7 @@ def start_survey():
     session[RESPONSES_KEY] = []
     return redirect("/questions/0")
 
-@app.route("/response", methods=["POSTS"])
+@app.route("/response", methods=["POST"])
 def answered_question():
     choice = request.form['response']
 
@@ -28,7 +28,7 @@ def answered_question():
     session[RESPONSES_KEY] = responses
     
     if(len(responses) == len(survey.questions)):
-        return redirect("/complete")
+        return redirect("/finished")
     
     else:
         return redirect(f"/questions/{len(responses)}")
@@ -52,7 +52,7 @@ def display_question(qnum):
     return render_template("questions.html", question_num=qnum, question=question)
 
 
-@app.route("/complete")
+@app.route("/finished")
 def completed():
     return render_template("completed.html")
 
