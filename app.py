@@ -1,11 +1,12 @@
 from flask import Flask, request, render_template, redirect, session, flash
-from surveys import satisfaction_survey as survey
 from flask_debugtoolbar import DebugToolbarExtension
+from surveys import satisfaction_survey as survey
 
 RESPONSES_KEY = "responses"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "secret"
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.debug = True
 debug = DebugToolbarExtension(app)
 
@@ -18,17 +19,22 @@ def start_survey():
     session[RESPONSES_KEY] = []
     return redirect("/questions/0")
 
-@app.route("/answer", methods=["POSTS"])
+@app.route("/response", methods=["POSTS"])
 def answered_question():
-    choice = request.form['answer']
+    choice = request.form['response']
 
     responses = session[RESPONSES_KEY]
     responses.append(choice)
+    session[RESPONSES_KEY] = responses
+    
     if(len(responses) == len(survey.questions)):
         return redirect("/complete")
+    
+    else:
+        return redirect(f"/questions/{len(responses)}")
 
 @app.route("/questions/<int:qnum>")
-def show_questions(qnum):
+def display_question(qnum):
     responses = session.get(RESPONSES_KEY)
     
     if (responses is None):
@@ -39,8 +45,8 @@ def show_questions(qnum):
         return redirect("/complete")
 
     if (len(responses) != qnum):
-        flash(f"Not the correct question order, please try again!")
-        return redirect(f"/questions/")
+        flash(f"Not the correct question order: {qnum}, please try again!")
+        return redirect(f"/questions/{len(responses)}")
 
     question = survey.questions[qnum]
     return render_template("questions.html", question_num=qnum, question=question)
